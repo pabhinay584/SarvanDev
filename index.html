@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarvan Developers — Game is ART, We BUILD them</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #D4FF00;
+    --yellow-dim: #a8cc00;
+    --black: #080808;
+    --dark: #0f0f0f;
+    --card: #111111;
+    --border: #1e1e1e;
+    --text: #e8e8e8;
+    --muted: #666;
+    --glow: 0 0 60px rgba(212,255,0,0.25);
+    --glow-sm: 0 0 20px rgba(212,255,0,0.15);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed; width: 12px; height: 12px;
+    background: var(--yellow); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed; width: 36px; height: 36px;
+    border: 1px solid var(--yellow);
+    border-radius: 50%; pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease, width 0.3s, height 0.3s, border-color 0.3s;
+    opacity: 0.6;
+  }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring {
+    width: 56px; height: 56px; border-color: var(--yellow); opacity: 1;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.025; pointer-events: none; z-index: 1000;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.4rem 4rem;
+    border-bottom: 1px solid transparent;
+    transition: background 0.4s, border-color 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(8,8,8,0.85);
+    backdrop-filter: blur(20px);
+    border-color: var(--border);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem; letter-spacing: 0.1em;
+    color: var(--yellow); text-decoration: none;
+  }
+  .nav-logo span { color: var(--text); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted);
+    text-decoration: none; transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px; background: var(--yellow);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--yellow); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--black);
+    background: var(--yellow); border: none;
+    padding: 0.6rem 1.4rem; cursor: none;
+    font-weight: 500; transition: transform 0.2s, box-shadow 0.2s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: var(--glow-sm); }
+
+  /* HERO */
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; align-items: center;
+    overflow: hidden; padding: 0 4rem;
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(212,255,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,255,0,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridPan 20s linear infinite;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  }
+  @keyframes gridPan { from { transform: translateY(0); } to { transform: translateY(60px); } }
+
+  .hero-glow {
+    position: absolute; width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(212,255,0,0.12) 0%, transparent 70%);
+    border-radius: 50%; left: -100px; top: 50%; transform: translateY(-50%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.6; transform: translateY(-50%) scale(1); } 50% { opacity: 1; transform: translateY(-50%) scale(1.05); } }
+
+  .hero-content { position: relative; z-index: 2; max-width: 700px; }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--yellow);
+    display: flex; align-items: center; gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    opacity: 0; animation: fadeUp 0.6s 0.2s forwards;
+  }
+  .hero-tag::before {
+    content: ''; width: 30px; height: 1px; background: var(--yellow);
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 9vw, 9rem);
+    line-height: 0.9; letter-spacing: 0.02em;
+    margin-bottom: 0.5rem;
+    opacity: 0; animation: fadeUp 0.7s 0.4s forwards;
+  }
+  .hero-title .line-yellow { color: var(--yellow); }
+  .hero-title .line-outline {
+    -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+    color: transparent;
+  }
+
+  .hero-sub {
+    font-size: 1rem; color: var(--muted); max-width: 420px;
+    line-height: 1.7; margin-bottom: 2.5rem;
+    font-weight: 400;
+    opacity: 0; animation: fadeUp 0.7s 0.6s forwards;
+  }
+
+  .hero-pills {
+    display: flex; gap: 0.6rem; margin-bottom: 2.5rem;
+    opacity: 0; animation: fadeUp 0.7s 0.7s forwards;
+  }
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+    border: 1px solid var(--border); padding: 0.35rem 0.8rem;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .pill:hover { color: var(--yellow); border-color: var(--yellow); }
+
+  .hero-btns {
+    display: flex; gap: 1rem;
+    opacity: 0; animation: fadeUp 0.7s 0.8s forwards;
+  }
+  .btn-primary {
+    background: var(--yellow); color: var(--black);
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.9rem 2.2rem; border: none; cursor: none;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(212,255,0,0.4); }
+  .btn-secondary {
+    background: transparent; color: var(--text);
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.9rem 2.2rem; border: 1px solid var(--border); cursor: none;
+    transition: border-color 0.2s, color 0.2s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-secondary:hover { border-color: var(--yellow); color: var(--yellow); }
+
+  .hero-image-wrap {
+    position: absolute; right: -2rem; top: 50%; transform: translateY(-50%);
+    width: 55%; opacity: 0; animation: heroImg 1s 0.5s forwards;
+  }
+  @keyframes heroImg { from { opacity: 0; transform: translateY(-45%) translateX(40px); } to { opacity: 1; transform: translateY(-50%) translateX(0); } }
+
+  .hero-weapon {
+    width: 100%; filter: drop-shadow(0 0 60px rgba(212,255,0,0.3));
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+  .hero-weapon-label {
+    position: absolute; bottom: 30%; right: 5%;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.2em;
+    color: var(--yellow); text-transform: uppercase;
+    writing-mode: vertical-rl;
+    border-right: 1px solid var(--yellow); padding-right: 8px;
+  }
+
+  .hero-stats {
+    position: absolute; bottom: 3rem; right: 4rem;
+    display: flex; gap: 3rem;
+    opacity: 0; animation: fadeUp 0.7s 1s forwards;
+  }
+  .stat { text-align: right; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem; color: var(--yellow); line-height: 1;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.15em;
+    color: var(--muted); text-transform: uppercase;
+  }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    overflow: hidden; border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.8rem 0; background: var(--dark);
+  }
+  .marquee-track {
+    display: flex; gap: 0; width: max-content;
+    animation: marquee 18s linear infinite;
+  }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem; letter-spacing: 0.2em;
+    color: var(--muted); text-transform: uppercase;
+    padding: 0 2rem; white-space: nowrap;
+    display: flex; align-items: center; gap: 2rem;
+  }
+  .marquee-item::after { content: '✦'; color: var(--yellow); font-size: 0.6rem; }
+
+  /* SERVICES */
+  #services { padding: 8rem 4rem; position: relative; }
+  .section-header { margin-bottom: 5rem; }
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--yellow); display: flex; align-items: center; gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  .section-tag::before { content: '//'; }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    line-height: 1; letter-spacing: 0.02em;
+  }
+  .section-title span { color: var(--yellow); }
+
+  .services-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--border);
+  }
+  .service-card {
+    background: var(--dark); padding: 2.5rem 2rem;
+    position: relative; overflow: hidden;
+    transition: background 0.3s;
+  }
+  .service-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(212,255,0,0.06) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .service-card:hover { background: #131313; }
+  .service-card:hover::before { opacity: 1; }
+  .service-card:hover .service-icon { color: var(--yellow); transform: scale(1.1); }
+
+  .service-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.2em; color: var(--border);
+    margin-bottom: 2rem;
+  }
+  .service-icon {
+    font-size: 2.5rem; margin-bottom: 1.5rem;
+    display: block; transition: color 0.3s, transform 0.3s;
+    color: #444;
+  }
+  .service-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; letter-spacing: 0.05em;
+    margin-bottom: 0.8rem;
+  }
+  .service-desc {
+    font-size: 0.82rem; color: var(--muted); line-height: 1.7;
+  }
+  .service-arrow {
+    position: absolute; bottom: 2rem; right: 2rem;
+    color: var(--border); font-size: 1.2rem;
+    transition: color 0.3s, transform 0.3s;
+  }
+  .service-card:hover .service-arrow { color: var(--yellow); transform: translate(3px, -3px); }
+
+  /* ABOUT */
+  #about { padding: 8rem 4rem; }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+
+  .about-visual {
+    position: relative;
+    aspect-ratio: 4/3;
+  }
+  .about-img-main {
+    width: 100%; height: 100%; object-fit: cover;
+    border: 1px solid var(--border);
+    filter: grayscale(30%) contrast(1.1);
+    transition: filter 0.4s;
+  }
+  .about-img-main:hover { filter: grayscale(0%) contrast(1.1); }
+  .about-badge {
+    position: absolute; bottom: -2rem; right: -2rem;
+    background: var(--yellow); color: var(--black);
+    padding: 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    text-align: center;
+  }
+  .about-badge-num { font-size: 2.5rem; line-height: 1; }
+  .about-badge-text { font-size: 0.8rem; letter-spacing: 0.1em; }
+  .about-line {
+    position: absolute; top: -1rem; left: -1rem;
+    width: 60px; height: 60px;
+    border-top: 2px solid var(--yellow);
+    border-left: 2px solid var(--yellow);
+  }
+
+  .about-content .section-header { margin-bottom: 2rem; }
+  .about-text {
+    font-size: 0.95rem; color: var(--muted); line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+  .about-text strong { color: var(--text); font-weight: 600; }
+
+  .about-features { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+  .about-feature {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 1rem; border: 1px solid var(--border);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .about-feature:hover { border-color: var(--yellow); background: rgba(212,255,0,0.02); }
+  .about-feature-icon {
+    width: 36px; height: 36px; background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 1rem;
+    transition: background 0.3s;
+  }
+  .about-feature:hover .about-feature-icon { background: var(--yellow); }
+  .about-feature-text h4 {
+    font-size: 0.85rem; font-weight: 700; margin-bottom: 0.2rem;
+    letter-spacing: 0.05em;
+  }
+  .about-feature-text p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+  /* WORK / PORTFOLIO */
+  #work { padding: 8rem 4rem; }
+  .work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; }
+  .work-card {
+    position: relative; aspect-ratio: 4/3; overflow: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    cursor: none;
+  }
+  .work-card-bg {
+    position: absolute; inset: 0;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 6rem; opacity: 0.08;
+  }
+  .work-card:hover .work-card-bg { transform: scale(1.1); opacity: 0.15; }
+  .work-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 60%);
+  }
+  .work-card-content {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 1.5rem;
+    transform: translateY(20px); opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .work-card:hover .work-card-content { transform: translateY(0); opacity: 1; }
+  .work-card-always {
+    position: absolute; bottom: 1.5rem; left: 1.5rem;
+    transition: opacity 0.3s;
+  }
+  .work-card:hover .work-card-always { opacity: 0; }
+  .work-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--yellow); background: rgba(212,255,0,0.1);
+    padding: 0.3rem 0.7rem; display: inline-block; margin-bottom: 0.6rem;
+  }
+  .work-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; }
+  .work-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-top: 0.4rem; }
+  .work-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--yellow); text-decoration: none; margin-top: 0.8rem;
+  }
+
+  /* PRICING */
+  #pricing { padding: 8rem 4rem; background: var(--dark); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-top: 4rem; }
+  .price-card {
+    background: var(--dark); padding: 3rem 2.5rem;
+    position: relative; transition: background 0.3s;
+  }
+  .price-card.featured { background: #0d1a00; }
+  .price-card.featured::before {
+    content: 'POPULAR';
+    position: absolute; top: -1px; right: 2.5rem;
+    background: var(--yellow); color: var(--black);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 0.2em;
+    padding: 0.3rem 0.8rem;
+  }
+  .price-tier {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1.5rem;
+  }
+  .price-num {
+    font-family: 'Bebas Neue', sans-serif; font-size: 4rem; line-height: 1;
+    color: var(--text); margin-bottom: 0.3rem;
+  }
+  .price-num span { font-size: 1.5rem; color: var(--muted); }
+  .price-per {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--muted); margin-bottom: 2rem;
+  }
+  .price-divider { height: 1px; background: var(--border); margin-bottom: 2rem; }
+  .price-features { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 2.5rem; }
+  .price-features li {
+    font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 0.7rem;
+  }
+  .price-features li::before { content: '✓'; color: var(--yellow); font-weight: bold; flex-shrink: 0; }
+  .price-features li.no { color: #333; }
+  .price-features li.no::before { content: '✗'; color: #333; }
+
+  /* CONTACT */
+  #contact { padding: 8rem 4rem; }
+  .contact-inner {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem;
+  }
+  .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+  .form-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  }
+  .form-input, .form-textarea {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 0.9rem 1rem;
+    font-family: 'Syne', sans-serif; font-size: 0.88rem;
+    outline: none; transition: border-color 0.2s;
+    resize: vertical;
+  }
+  .form-input:focus, .form-textarea:focus { border-color: var(--yellow); }
+  .form-textarea { min-height: 120px; }
+
+  .contact-info { display: flex; flex-direction: column; gap: 3rem; }
+  .contact-item-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--yellow); margin-bottom: 0.5rem;
+  }
+  .contact-item-value {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.05em;
+  }
+  .contact-item-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark); border-top: 1px solid var(--border);
+    padding: 3rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.1em; color: var(--yellow);
+  }
+  .footer-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.1em; color: var(--muted);
+  }
+  .footer-links { display: flex; gap: 2rem; }
+  .footer-links a {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); text-decoration: none; transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--yellow); }
+
+  /* SCROLL REVEAL */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s, transform 0.7s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--yellow); }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    nav { padding: 1.2rem 2rem; }
+    #hero, #services, #about, #work, #pricing, #contact { padding: 5rem 2rem; }
+    .services-grid { grid-template-columns: repeat(2, 1fr); }
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .work-grid { grid-template-columns: repeat(2, 1fr); }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .hero-image-wrap { display: none; }
+    .hero-stats { position: static; margin-top: 3rem; justify-content: flex-start; }
+  }
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .work-grid { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 4rem; }
+  }
+
+  .Image img{
+    height: 445.5px;
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 60%);
+  }
+  .reel video{
+    height:250px;
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">SARVAN<span>DEV</span></a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta">Get Demo</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-content">
+    <br />
+    <!-- <div class="hero-tag">Game Studio · VFX · Web · Electronics</div> -->
+    <br />
+    <br />
+    <h1 class="hero-title">
+      <div>GAME</div>
+      <div class="line-yellow">IS ART</div>
+      <div class="line-outline">WE BUILD</div>
+    </h1>
+    <p class="hero-sub">Sarvan Developers crafts futuristic games, cinematic VFX, and cutting-edge digital experiences with unmatched legacy in VLSI and embedded systems.</p>
+    <div class="hero-pills">
+      <br />
+      <span class="pill">Games</span>
+      <span class="pill">VFX</span>
+      <span class="pill">Web</span>
+      <span class="pill">Electronics</span>
+    </div>
+    <div class="hero-btns">
+      <a href="#work" class="btn-primary">View Our Work ↗</a>
+      <a href="#contact" class="btn-secondary">Get in Touch</a>
+    </div>
+  </div>
+
+  <div class="hero-image-wrap">
+    <!-- Sniper rifle SVG representation -->
+    <svg class="hero-weapon" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <linearGradient id="metalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#555"/>
+          <stop offset="40%" style="stop-color:#888"/>
+          <stop offset="100%" style="stop-color:#222"/>
+        </linearGradient>
+        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#4a5a3a"/>
+          <stop offset="100%" style="stop-color:#2a3a1a"/>
+        </linearGradient>
+      </defs>
+      <!-- Barrel -->
+      <rect x="60" y="138" width="480" height="14" rx="3" fill="url(#metalGrad)" filter="url(#glow)"/>
+      <rect x="60" y="140" width="480" height="4" rx="1" fill="rgba(255,255,255,0.15)"/>
+      <!-- Suppressor -->
+      <rect x="20" y="132" width="55" height="26" rx="5" fill="url(#greenGrad)" stroke="#D4FF00" stroke-width="0.5"/>
+      <!-- Scope -->
+      <rect x="280" y="105" width="160" height="38" rx="8" fill="#1a1a1a" stroke="#D4FF00" stroke-width="1"/>
+      <circle cx="360" cy="124" r="14" fill="none" stroke="#D4FF00" stroke-width="1.5"/>
+      <circle cx="360" cy="124" r="5" fill="rgba(212,255,0,0.3)"/>
+      <line x1="360" y1="110" x2="360" y2="138" stroke="rgba(212,255,0,0.4)" stroke-width="0.5"/>
+      <line x1="346" y1="124" x2="374" y2="124" stroke="rgba(212,255,0,0.4)" stroke-width="0.5"/>
+      <!-- Body -->
+      <path d="M520 120 L720 115 L740 135 L740 175 L680 185 L540 185 L520 165 Z" fill="url(#greenGrad)" stroke="#333" stroke-width="1"/>
+      <!-- Stock -->
+      <path d="M720 115 L870 118 L880 145 L840 175 L740 175 L740 135 Z" fill="#2a3a2a" stroke="#333" stroke-width="1"/>
+      <!-- Grip -->
+      <path d="M620 180 L640 220 L680 220 L695 185 Z" fill="#1a2a1a" stroke="#333" stroke-width="1"/>
+      <!-- Trigger guard -->
+      <path d="M640 175 Q660 195 680 175" fill="none" stroke="#555" stroke-width="3"/>
+      <!-- Bipod -->
+      <line x1="130" y1="152" x2="110" y2="210" stroke="#666" stroke-width="3"/>
+      <line x1="190" y1="152" x2="210" y2="210" stroke="#666" stroke-width="3"/>
+      <line x1="108" y1="208" x2="122" y2="208" stroke="#666" stroke-width="3"/>
+      <line x1="208" y1="208" x2="222" y2="208" stroke="#666" stroke-width="3"/>
+      <!-- Rail details -->
+      <rect x="525" y="113" width="8" height="6" rx="1" fill="#444"/>
+      <rect x="540" y="113" width="8" height="6" rx="1" fill="#444"/>
+      <rect x="555" y="113" width="8" height="6" rx="1" fill="#444"/>
+      <!-- Glow accent -->
+      <rect x="60" y="148" width="480" height="2" fill="rgba(212,255,0,0.6)" filter="url(#glow)"/>
+    </svg>
+    <div class="hero-weapon-label">AWM — PRECISION CRAFT</div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">Domains</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Creativity</div></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Game Development</div>
+    <div class="marquee-item">Visual Effects</div>
+    <div class="marquee-item">Web Engineering</div>
+    <div class="marquee-item">VLSI Design</div>
+    <div class="marquee-item">Embedded Systems</div>
+    <div class="marquee-item">3D Modeling</div>
+    <div class="marquee-item">Game Development</div>
+    <div class="marquee-item">Visual Effects</div>
+    <div class="marquee-item">Web Engineering</div>
+    <div class="marquee-item">VLSI Design</div>
+    <div class="marquee-item">Embedded Systems</div>
+    <div class="marquee-item">3D Modeling</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-header reveal">
+    <div class="section-tag">What We Do</div>
+    <h2 class="section-title">OUR <span>DOMAINS</span></h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01 — GAMES</div>
+      <span class="service-icon">🎮</span>
+      <div class="service-name">GAME DEV</div>
+      <p class="service-desc">Futuristic, immersive games built with precision — from concept to launch. We craft worlds players never want to leave.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">02 — VFX</div>
+      <span class="service-icon">🎬</span>
+      <div class="service-name">VISUAL FX</div>
+      <p class="service-desc">Cinematic visual effects and 3D rendering that blurs the line between real and digital. Art at every frame.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">03 — WEB</div>
+      <span class="service-icon">🌐</span>
+      <div class="service-name">WEB APPS</div>
+      <p class="service-desc">High-performance web applications and digital experiences engineered for scale, beauty, and speed.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">04 — TECH</div>
+      <span class="service-icon">⚡</span>
+      <div class="service-name">ELECTRONICS</div>
+      <p class="service-desc">VLSI design and embedded systems with a legacy of precision — hardware that powers tomorrow's devices.</p>
+      <span class="service-arrow">↗</span>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-visual reveal">
+      <div class="about-line"></div>
+      <!-- Atmospheric game scene SVG -->
+      <svg width="100%" viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+        <defs>
+          <radialGradient id="skyGrad" cx="50%" cy="30%">
+            <stop offset="0%" style="stop-color:#1a3a5c"/>
+            <stop offset="60%" style="stop-color:#0a1a2a"/>
+            <stop offset="100%" style="stop-color:#000"/>
+          </radialGradient>
+          <linearGradient id="mountGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#2a4a3a"/>
+            <stop offset="100%" style="stop-color:#1a2a1a"/>
+          </linearGradient>
+        </defs>
+        <rect width="600" height="450" fill="url(#skyGrad)"/>
+        <!-- Stars -->
+        <circle cx="50" cy="40" r="1" fill="white" opacity="0.6"/>
+        <circle cx="120" cy="25" r="1.5" fill="white" opacity="0.8"/>
+        <circle cx="200" cy="60" r="1" fill="white" opacity="0.5"/>
+        <circle cx="350" cy="30" r="1" fill="white" opacity="0.7"/>
+        <circle cx="450" cy="50" r="1.5" fill="white" opacity="0.6"/>
+        <circle cx="530" cy="20" r="1" fill="white" opacity="0.9"/>
+        <circle cx="80" cy="80" r="0.8" fill="white" opacity="0.4"/>
+        <circle cx="280" cy="45" r="1" fill="white" opacity="0.6"/>
+        <!-- Mountains -->
+        <polygon points="0,300 100,160 200,300" fill="url(#mountGrad)" opacity="0.7"/>
+        <polygon points="80,300 220,120 360,300" fill="url(#mountGrad)"/>
+        <polygon points="250,300 400,140 550,300" fill="url(#mountGrad)" opacity="0.8"/>
+        <polygon points="380,300 520,170 600,280 600,300" fill="url(#mountGrad)" opacity="0.9"/>
+        <!-- Foreground -->
+        <rect x="0" y="300" width="600" height="150" fill="#0a1a0a"/>
+        <!-- Trees -->
+        <rect x="30" y="250" width="4" height="50" fill="#1a2a1a"/>
+        <polygon points="32,220 15,260 50,260" fill="#1a3a1a"/>
+        <rect x="560" y="260" width="4" height="40" fill="#1a2a1a"/>
+        <polygon points="562,235 548,265 576,265" fill="#1a3a1a"/>
+        <!-- Neon grid on ground -->
+        <line x1="0" y1="350" x2="600" y2="350" stroke="rgba(212,255,0,0.1)" stroke-width="1"/>
+        <line x1="0" y1="380" x2="600" y2="380" stroke="rgba(212,255,0,0.06)" stroke-width="1"/>
+        <line x1="200" y1="300" x2="200" y2="450" stroke="rgba(212,255,0,0.06)" stroke-width="1"/>
+        <line x1="400" y1="300" x2="400" y2="450" stroke="rgba(212,255,0,0.06)" stroke-width="1"/>
+        <!-- Sun/moon glow -->
+        <circle cx="300" cy="130" r="40" fill="rgba(212,255,0,0.05)"/>
+        <circle cx="300" cy="130" r="20" fill="rgba(212,255,0,0.08)"/>
+        <circle cx="300" cy="130" r="8" fill="rgba(212,255,0,0.2)"/>
+        <!-- Text overlay -->
+        <text x="300" y="430" font-family="Bebas Neue, sans-serif" font-size="14" fill="rgba(212,255,0,0.3)" text-anchor="middle" letter-spacing="6">SARVAN UNIVERSE</text>
+      </svg>
+<!--      <div class="about-badge">
+        <div class="about-badge-num">5+</div>
+        <div class="about-badge-text">YRS EXP</div>
+      </div>-->
+    </div>
+
+    <div class="about-content">
+      <div class="section-header">
+        <div class="section-tag">Who We Are</div>
+        <h2 class="section-title">BUILT FOR<br><span>THE FUTURE</span></h2>
+      </div>
+      <p class="about-text">Sarvan Developers is a <strong>multi-disciplinary creative tech studio</strong> that blurs the boundaries between art and engineering. We build experiences that feel like they're from tomorrow.</p>
+      <p class="about-text">From the rendering pipeline of a game world to the silicon of a custom chip — we own the full stack of creation.</p>
+      <div class="about-features reveal">
+        <div class="about-feature">
+          <div class="about-feature-icon">🎯</div>
+          <div class="about-feature-text">
+            <h4>Precision Engineering</h4>
+            <p>Every pixel, every gate, every function is crafted with obsessive attention to detail.</p>
+          </div>
+        </div>
+        <div class="about-feature">
+          <div class="about-feature-icon">🚀</div>
+          <div class="about-feature-text">
+            <h4>Futuristic Vision</h4>
+            <p>We don't follow trends — we build the tools that define what comes next.</p>
+          </div>
+        </div>
+        <div class="about-feature">
+          <div class="about-feature-icon">🔗</div>
+          <div class="about-feature-text">
+            <h4>Full-Stack Creative</h4>
+            <p>Games, VFX, Web, VLSI — rare multi-domain expertise under one roof.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-header reveal">
+    <div class="section-tag">Portfolio</div>
+    <h2 class="section-title">FEATURED <span>WORK</span></h2>
+  </div>
+  <div class="work-grid">
+    <div class="work-card reveal" style="grid-column: span 2;">
+      <div class="Image"><img src="./Screenshot 2026-05-12 181420.png"></div>
+      <div class="work-card-overlay"></div>
+      <div class="work-card-always">
+        <div class="work-tag">Game Dev</div>
+        <div class="work-title">OPEN WORLD RPG</div>
+      </div>
+      <div class="work-card-content">
+        <div class="work-tag">Game Dev</div>
+        <div class="work-title">PROJECT AIRCRAFT SURVIVAL LINE</div>
+        <div class="work-desc">A futuristic open-world RPG built in Unreal Engine 5 with procedural terrain and real-time global illumination.</div>
+      </div>
+    </div>
+    <div class="work-card reveal">
+      <div class="reel"><video autoplay loop>
+    <source src="./293173_medium.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video></div>
+      <div class="work-card-overlay"></div>
+      <div class="work-card-always">
+        <div class="work-tag">VFX</div>
+        <div class="work-title">CINEMATIC REEL</div>
+      </div>
+      <div class="work-card-content">
+        <div class="work-tag">VFX · 3D</div>
+        <div class="work-title">REALISTIC VFX REEL</div>
+        <div class="work-desc">Cinematic scenes for film level production.</div>
+      </div>
+    </div>
+    <div class="work-card reveal">
+      <div class="work-card-bg" style="background: linear-gradient(135deg, #0a1a2a, #0a2a3a);">🌐</div>
+      <div class="work-card-overlay"></div>
+      <div class="work-card-always">
+        <div class="work-tag">Web</div>
+        <div class="work-title">SAAS PLATFORM</div>
+      </div>
+      <div class="work-card-content">
+        <div class="work-tag">Web · React</div>
+        <div class="work-title">NEXUS DASHBOARD</div>
+        <div class="work-desc">Real-time analytics SaaS platform with WebGL data visualization and live streaming.</div>
+        <a href="#" class="work-link">View Project ↗</a>
+      </div>
+    </div>
+    <div class="work-card reveal">
+      <div class="work-card-bg" style="background: linear-gradient(135deg, #1a1a0a, #2a2a0a);">⚡</div>
+      <div class="work-card-overlay"></div>
+      <div class="work-card-always">
+        <div class="work-tag">Electronics</div>
+        <div class="work-title">FPGA CONTROLLER</div>
+      </div>
+      <div class="work-card-content">
+        <div class="work-tag">VLSI · Embedded</div>
+        <div class="work-title">CUSTOM FPGA CORE</div>
+        <div class="work-desc">High-frequency VLSI design with custom instruction set for real-time game physics processing.</div>
+        <a href="#" class="work-link">View Project ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-header reveal">
+    <div class="section-tag">Packages</div>
+    <h2 class="section-title">SIMPLE <span>PRICING</span></h2>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card reveal">
+      <div class="price-tier">// Starter</div>
+      <div class="price-num"><span>₹</span>999.00</div>
+      <div class="price-per">per project · small scope</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li>Basic Web App</li>
+        <li>10 Seconds VFX clips</li>
+        <li>2 Revision Rounds</li>
+        <li>15-day Support</li>
+        <li class="no">VFX Integration</li>
+        <li class="no">VLSI / Embedded</li>
+      </ul>
+      <a href="#contact" class="btn-secondary" style="text-align:center; display:block;">Get Started</a>
+    </div>
+    <div class="price-card featured reveal">
+      <div class="price-tier">// Studio</div>
+      <div class="price-num"><span>₹</span>8,999.00</div>
+      <div class="price-per">per project · full scope</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li>Full Game + Web App</li>
+        <li>VFX Integration</li>
+        <li>Multi-Platform Build</li>
+        <li>Unlimited Revisions</li>
+        <li>90-day Support</li>
+        <li class="no">Custom Hardware</li>
+      </ul>
+      <a href="#contact" class="btn-primary" style="text-align:center; display:block;">Most Popular</a>
+    </div>
+    <div class="price-card reveal">
+      <div class="price-tier">// Enterprise</div>
+      <div class="price-num">CUSTOM</div>
+      <div class="price-per">scoped · let's talk</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li>Everything in Studio</li>
+        <li>Dedicated Team</li>
+        <li>Source Code Ownership</li>
+        <li>1 Year Maintenance</li>
+        <li>IP Transfer Included</li>
+      </ul>
+      <a href="#contact" class="btn-secondary" style="text-align:center; display:block;">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header reveal">
+    <div class="section-tag">Get in Touch</div>
+    <h2 class="section-title">LET'S <span>BUILD</span></h2>
+  </div>
+  <div class="contact-inner">
+    <div class="contact-info reveal">
+      <div>
+        <div class="contact-item-label">// Location</div>
+        <div class="contact-item-value">INDIA</div>
+        <div class="contact-item-sub">Remote-first · Available worldwide</div>
+      </div>
+      <div>
+        <div class="contact-item-label">// Email</div>
+        <div class="contact-item-value">SARVAN DEVELOPERS</div>
+        <div class="contact-item-sub">sarvandevelopers364@gmail.com</div>
+      </div>
+      <div>
+        <div class="contact-item-label">// Call</div>
+        <div class="contact-item-value">SARVAN DEVELOPERS</div>
+        <div class="contact-item-sub">+91 7337536496</div>
+      </div>
+      <div>
+        <div class="contact-item-label">// Response Time</div>
+        <div class="contact-item-value">24 HRS</div>
+        <div class="contact-item-sub">We respond to every inquiry</div>
+      </div>
+      <div>
+        <!-- <div class="contact-item-label">// Follow Us</div>
+        <div style="display:flex; gap:1rem; margin-top:0.5rem;">
+          <a href="#" class="btn-secondary" style="font-size:0.7rem; padding:0.5rem 1rem;">Twitter</a>
+          <a href="#" class="btn-secondary" style="font-size:0.7rem; padding:0.5rem 1rem;">LinkedIn</a>
+          <a href="#" class="btn-secondary" style="font-size:0.7rem; padding:0.5rem 1rem;">GitHub</a> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form reveal">
+      <div class="form-group">
+        <label class="form-label">// Your Name</label>
+        <input type="text" class="form-input" placeholder="John Doe">
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Email Address</label>
+        <input type="email" class="form-input" placeholder="john@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Service Needed</label>
+        <input type="text" class="form-input" placeholder="Game Dev / VFX / Web / Electronics">
+      </div>
+      <div class="form-group">
+        <label class="form-label">// Project Details</label>
+        <textarea class="form-textarea" placeholder="Tell us about your project..."></textarea>
+      </div>
+      <button class="btn-primary" style="align-self: flex-start;" onclick="alert('Message sent! We will get back to you within 24 hours.')">
+        Send Message ↗
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">SARVAN DEVELOPERS</div>
+  <div class="footer-copy">© 2026 Sarvan Developers. Game is ART, We BUILD them.</div>
+  <div class="footer-links">
+    <a href="#services">Services</a>
+    <a href="#work">Work</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  function animateCursor() {
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  // NAV SCROLL
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // SCROLL REVEAL
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  // STAGGER CHILDREN
+  document.querySelectorAll('.services-grid, .work-grid, .pricing-grid').forEach(grid => {
+    [...grid.children].forEach((child, i) => {
+      child.style.transitionDelay = (i * 0.1) + 's';
+    });
+  });
+
+  // ACTIVE NAV LINK
+  const sections = document.querySelectorAll('section[id]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 200) current = s.id;
+    });
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--yellow)' : '';
+    });
+  });
+</script>
+</body>
+</html>
